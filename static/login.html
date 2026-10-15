@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | Enterprise Data Redundancy System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-950 text-gray-100 font-sans flex items-start justify-center px-4 py-8 sm:items-center sm:p-6">
+    <main class="w-full max-w-md">
+        <header class="mb-8">
+            <p class="text-xs font-semibold uppercase tracking-widest text-blue-400">Data hygiene workspace</p>
+            <h1 class="mt-2 text-2xl font-bold text-white sm:text-3xl">Enterprise Data Redundancy System</h1>
+            <p class="mt-2 text-sm text-gray-400">Sign in to clean datasets and review your audit history.</p>
+        </header>
+
+        <section class="rounded-xl border border-gray-800 bg-gray-900 p-4 shadow-xl sm:p-6">
+            <div class="grid grid-cols-2 gap-1 rounded-lg bg-gray-950 p-1 mb-6" role="tablist" aria-label="Account access">
+                <button id="signInTab" type="button" onclick="showMode('login')" class="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white" role="tab" aria-selected="true">Sign in</button>
+                <button id="createTab" type="button" onclick="showMode('register')" class="rounded-md px-3 py-2 text-sm font-semibold text-gray-400 hover:text-white" role="tab" aria-selected="false">Create account</button>
+            </div>
+
+            <div id="formMessage" class="hidden mb-4 rounded-md border px-3 py-2 text-sm" role="status" aria-live="polite"></div>
+
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="loginEmail" class="mb-1 block text-xs font-semibold uppercase text-gray-400">Email</label>
+                    <input id="loginEmail" type="email" autocomplete="email" required class="w-full rounded-md border border-gray-700 bg-gray-950 px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="loginPassword" class="mb-1 block text-xs font-semibold uppercase text-gray-400">Password</label>
+                    <div class="relative">
+                        <input id="loginPassword" type="password" autocomplete="current-password" required class="w-full rounded-md border border-gray-700 bg-gray-950 px-3 py-2.5 pr-16 text-sm text-white outline-none focus:border-blue-500">
+                        <button type="button" onclick="togglePassword('loginPassword', this)" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-0 px-3 text-xs font-semibold text-blue-300 hover:text-white">Show</button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full rounded-md bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500">Sign in</button>
+            </form>
+
+            <form id="registerForm" class="hidden space-y-4">
+                <div>
+                    <label for="registerName" class="mb-1 block text-xs font-semibold uppercase text-gray-400">Full name</label>
+                    <input id="registerName" type="text" minlength="2" maxlength="100" autocomplete="name" required class="w-full rounded-md border border-gray-700 bg-gray-950 px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="registerEmail" class="mb-1 block text-xs font-semibold uppercase text-gray-400">Email</label>
+                    <input id="registerEmail" type="email" maxlength="254" autocomplete="email" required class="w-full rounded-md border border-gray-700 bg-gray-950 px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="registerPassword" class="mb-1 block text-xs font-semibold uppercase text-gray-400">Password</label>
+                    <div class="relative">
+                        <input id="registerPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password" required class="w-full rounded-md border border-gray-700 bg-gray-950 px-3 py-2.5 pr-16 text-sm text-white outline-none focus:border-blue-500">
+                        <button type="button" onclick="togglePassword('registerPassword', this)" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-0 px-3 text-xs font-semibold text-blue-300 hover:text-white">Show</button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Use at least 10 characters.</p>
+                </div>
+                <button type="submit" class="w-full rounded-md bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500">Create client account</button>
+            </form>
+
+            <p class="mt-5 border-t border-gray-800 pt-4 text-xs leading-5 text-gray-500">New accounts are client accounts. To provision an administrator, configure <span class="font-mono text-gray-400">ADMIN_EMAIL</span> and <span class="font-mono text-gray-400">ADMIN_PASSWORD</span> before starting the server.</p>
+        </section>
+    </main>
+
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            button.textContent = showPassword ? 'Hide' : 'Show';
+            button.setAttribute('aria-label', `${showPassword ? 'Hide' : 'Show'} password`);
+            button.setAttribute('aria-pressed', String(showPassword));
+        }
+
+        function showMessage(message, isError = false) {
+            const box = document.getElementById('formMessage');
+            box.textContent = message;
+            box.className = `mb-4 rounded-md border px-3 py-2 text-sm ${isError ? 'border-rose-800 bg-rose-950/50 text-rose-300' : 'border-emerald-800 bg-emerald-950/40 text-emerald-300'}`;
+        }
+
+        function showMode(mode) {
+            const registering = mode === 'register';
+            document.getElementById('loginForm').classList.toggle('hidden', registering);
+            document.getElementById('registerForm').classList.toggle('hidden', !registering);
+            document.getElementById('signInTab').className = `rounded-md px-3 py-2 text-sm font-semibold ${registering ? 'text-gray-400 hover:text-white' : 'bg-blue-600 text-white'}`;
+            document.getElementById('createTab').className = `rounded-md px-3 py-2 text-sm font-semibold ${registering ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`;
+            document.getElementById('signInTab').setAttribute('aria-selected', String(!registering));
+            document.getElementById('createTab').setAttribute('aria-selected', String(registering));
+            document.getElementById('formMessage').classList.add('hidden');
+        }
+
+        async function responseMessage(response) {
+            const body = await response.json().catch(() => ({}));
+            if (Array.isArray(body.detail)) return body.detail.map(item => item.msg).join('. ');
+            return body.detail || 'The request could not be completed.';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: document.getElementById('loginEmail').value,
+                    password: document.getElementById('loginPassword').value
+                })
+            });
+            if (!response.ok) {
+                showMessage(await responseMessage(response), true);
+                return;
+            }
+            const result = await response.json();
+            sessionStorage.setItem('access_token', result.access_token);
+            window.location.assign(result.user.role === 'admin' ? '/admin' : '/client');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name: document.getElementById('registerName').value,
+                    email: document.getElementById('registerEmail').value,
+                    password: document.getElementById('registerPassword').value
+                })
+            });
+            if (!response.ok) {
+                showMessage(await responseMessage(response), true);
+                return;
+            }
+            document.getElementById('loginEmail').value = document.getElementById('registerEmail').value;
+            document.getElementById('loginPassword').value = '';
+            showMode('login');
+            showMessage('Account created. Sign in with your new credentials.');
+        });
+
+        async function initializeAuth() {
+            const token = sessionStorage.getItem('access_token');
+            if (!token) return;
+            const response = await fetch('/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+            if (!response.ok) {
+                sessionStorage.removeItem('access_token');
+                return;
+            }
+            const user = await response.json();
+            window.location.replace(user.role === 'admin' ? '/admin' : '/client');
+        }
+
+        initializeAuth();
+    </script>
+</body>
+</html>

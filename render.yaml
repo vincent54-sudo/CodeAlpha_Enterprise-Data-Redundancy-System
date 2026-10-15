@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: data-redundancy-removal
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    disk:
+      name: redundancy-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DB_FILE
+        value: /var/data/redundancy_history.db
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: System Administrator

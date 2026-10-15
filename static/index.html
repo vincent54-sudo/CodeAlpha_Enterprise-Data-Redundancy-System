@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Data Redundancy Removal System - Commercial Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 font-sans p-3 sm:p-6" onload="initializeClient()">
+    <div class="mx-auto max-w-5xl space-y-4 sm:space-y-6">
+
+        <!-- Header -->
+        <div class="flex flex-col items-start justify-between gap-4 rounded-xl border border-gray-800 bg-gray-900 p-4 shadow-lg sm:flex-row sm:items-center sm:p-6">
+            <div>
+                <h1 class="text-xl font-bold text-blue-400 sm:text-2xl">Enterprise Data Redundancy System</h1>
+                <p class="mt-1 text-sm text-gray-400">Commercial SaaS Edition: AI Cleansing & Certified Compliance Engine</p>
+            </div>
+            <div class="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                <span id="accountName" class="max-w-[55vw] truncate text-xs text-gray-300 sm:max-w-none"></span>
+                <a id="adminLink" href="/admin" class="hidden text-xs text-blue-300 hover:text-blue-200">Admin</a>
+                <button onclick="signOut()" class="text-xs text-gray-400 hover:text-white">Sign out</button>
+            </div>
+        </div>
+
+        <!-- Upload & Advanced Configuration Section -->
+        <div class="space-y-4 rounded-xl border border-gray-800 bg-gray-900 p-4 shadow sm:p-6">
+            <h2 class="text-lg font-semibold text-gray-200">📁 Multi-Format Dataset Upload & Parameters</h2>
+
+            <div class="space-y-3">
+                <input id="csvFileInput" type="file" accept=".csv, .xlsx, .xls, .json" onchange="inspectDataset()" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm text-gray-300 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500">
+                <p class="text-[11px] text-gray-500">Supported formats: CSV (.csv), Excel spreadsheets (.xlsx, .xls), and JSON (.json)</p>
+
+                <!-- Dynamic Column Selector Container -->
+                <div id="columnSelectorContainer" class="hidden space-y-2 bg-gray-950 p-4 rounded border border-gray-800">
+                    <label class="block text-xs font-semibold text-blue-400 uppercase">Target Columns for Exact Match</label>
+                    <div id="columnCheckboxes" class="flex flex-wrap gap-3 pt-2"></div>
+                </div>
+
+                <!-- Advanced Policies Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div class="bg-gray-950 p-3 rounded border border-gray-800">
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Retention Policy</label>
+                        <select id="keepPolicy" class="w-full bg-gray-900 border border-gray-800 rounded p-2 text-xs text-gray-300 focus:outline-none">
+                            <option value="first">Keep First Occurrence</option>
+                            <option value="last">Keep Last Occurrence</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-950 p-3 rounded border border-gray-800 flex items-center justify-between">
+                        <div>
+                            <span class="block text-xs font-semibold text-gray-400 uppercase">Case Insensitive Match</span>
+                            <span class="text-[10px] text-gray-500">Treat 'Alice' and 'alice' as duplicate</span>
+                        </div>
+                        <input id="ignoreCase" type="checkbox" class="w-4 h-4 rounded bg-gray-900 border-gray-700 text-blue-600 focus:ring-0 cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Fuzzy Matching Section -->
+                <div class="bg-gray-950 p-4 rounded border border-gray-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="block text-xs font-semibold text-purple-400 uppercase">🤖 AI Fuzzy Typo Matching</span>
+                            <span class="text-[10px] text-gray-500">Catch misspelled duplicates (e.g., 'Jon Smith' vs 'John Smith')</span>
+                        </div>
+                        <input id="enableFuzzy" type="checkbox" onchange="toggleFuzzyOptions()" class="w-4 h-4 rounded bg-gray-900 border-gray-700 text-purple-600 focus:ring-0 cursor-pointer">
+                    </div>
+
+                    <div id="fuzzyOptionsContainer" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-gray-800">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Target Column for Fuzzy Scan</label>
+                            <select id="fuzzyColumnSelect" class="w-full bg-gray-900 border border-gray-800 rounded p-2 text-xs text-gray-300 focus:outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Similarity Threshold (%)</label>
+                            <input id="fuzzyThreshold" type="number" min="50" max="100" value="85" class="w-full bg-gray-900 border border-gray-800 rounded p-2 text-xs text-gray-300 font-mono focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="runOptimization()" id="processBtn" class="w-full bg-blue-600 hover:bg-blue-500 font-semibold py-2.5 rounded text-sm transition text-white shadow-lg shadow-blue-900/25 hidden">
+                    Execute Commercial Optimization Engine
+                </button>
+            </div>
+        </div>
+
+        <!-- Analytics & Results Dashboard -->
+        <div id="resultsContainer" class="hidden space-y-6 rounded-xl border border-gray-800 bg-gray-900 p-4 shadow sm:p-6">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-semibold text-emerald-400">📊 Redundancy Elimination Audit Report</h2>
+                <span id="auditTimestamp" class="break-all text-xs font-mono text-gray-400 sm:break-normal"></span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-gray-950 p-4 rounded border border-gray-800 text-center">
+                    <span class="block text-[10px] text-gray-400 uppercase">Original Rows</span>
+                    <span id="metricOriginal" class="text-xl font-bold text-gray-100">0</span>
+                </div>
+                <div class="bg-gray-950 p-4 rounded border border-gray-800 text-center">
+                    <span class="block text-[10px] text-gray-400 uppercase">Cleaned Rows</span>
+                    <span id="metricCleaned" class="text-xl font-bold text-emerald-400">0</span>
+                </div>
+                <div class="bg-gray-950 p-4 rounded border border-gray-800 text-center">
+                    <span class="block text-[10px] text-gray-400 uppercase">Duplicates Removed</span>
+                    <span id="metricRemoved" class="text-xl font-bold text-amber-400">0</span>
+                </div>
+                <div class="bg-gray-950 p-4 rounded border border-gray-800 text-center">
+                    <span class="block text-[10px] text-gray-400 uppercase">Storage Saved</span>
+                    <span id="metricPercent" class="text-xl font-bold text-blue-400">0%</span>
+                </div>
+                <div class="bg-gray-950 p-4 rounded border border-gray-800 text-center col-span-2 md:col-span-1">
+                    <span class="block text-[10px] text-gray-400 uppercase">Data Health Score</span>
+                    <span id="metricHealth" class="text-xl font-bold text-purple-400">0/100</span>
+                </div>
+            </div>
+
+            <!-- Tabular Data Preview -->
+            <div class="space-y-2">
+                <h3 class="text-xs font-semibold text-gray-300 uppercase">Optimized Dataset Table Preview</h3>
+                <div class="overflow-x-auto border border-gray-800 rounded max-h-64">
+                    <table id="previewTable" class="w-full text-left text-xs text-gray-300">
+                        <thead id="tableHeader" class="bg-gray-950 text-blue-400 uppercase text-[10px]"></thead>
+                        <tbody id="tableBody" class="divide-y divide-gray-800 bg-gray-900"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action Export Buttons -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
+                <button onclick="downloadFile('csv')" class="bg-emerald-600 hover:bg-emerald-500 font-semibold py-2.5 rounded text-sm transition text-white shadow-lg shadow-emerald-900/20">
+                    Download CSV
+                </button>
+                <button onclick="downloadFile('json')" class="bg-purple-600 hover:bg-purple-500 font-semibold py-2.5 rounded text-sm transition text-white shadow-lg shadow-purple-900/20">
+                    Download JSON
+                </button>
+                <button onclick="downloadFile('removed')" class="bg-amber-600 hover:bg-amber-500 font-semibold py-2.5 rounded text-sm transition text-white shadow-lg shadow-amber-900/20">
+                    Audit Log (Removed)
+                </button>
+                <button onclick="downloadPDFReport()" class="bg-rose-600 hover:bg-rose-500 font-semibold py-2.5 rounded text-sm transition text-white shadow-lg shadow-rose-900/20 col-span-2 md:col-span-2">
+                    📄 Download Certified PDF Audit Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Persistent Database History Section -->
+        <div class="space-y-4 rounded-xl border border-gray-800 bg-gray-900 p-4 shadow sm:p-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-200">🗄️ Enterprise Job History & Audit Database</h2>
+                <button onclick="loadHistory()" class="text-xs text-blue-400 hover:underline">Refresh History</button>
+            </div>
+            <div class="overflow-x-auto border border-gray-800 rounded max-h-60">
+                <table class="w-full text-left text-xs text-gray-300">
+                    <thead class="bg-gray-950 text-blue-400 uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Filename</th>
+                            <th class="p-2.5">Timestamp</th>
+                            <th class="p-2.5">Original</th>
+                            <th class="p-2.5">Cleaned</th>
+                            <th class="p-2.5">Removed</th>
+                            <th class="p-2.5">Redundancy %</th>
+                            <th class="p-2.5">Health Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-gray-800 bg-gray-900">
+                        <tr><td colspan="8" class="p-4 text-center text-gray-500">Loading audit history...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let cachedCSV = "";
+        let cachedJSON = "";
+        let cachedRemoved = "";
+        let lastJobData = {};
+        let currentUser = null;
+
+        function authHeaders() {
+            return { Authorization: `Bearer ${sessionStorage.getItem('access_token') || ''}` };
+        }
+
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
+
+        async function initializeClient() {
+            if (!sessionStorage.getItem('access_token')) {
+                window.location.replace('/');
+                return;
+            }
+            const response = await fetch('/auth/me', { headers: authHeaders() });
+            if (!response.ok) {
+                sessionStorage.removeItem('access_token');
+                window.location.replace('/');
+                return;
+            }
+            currentUser = await response.json();
+            if (currentUser.role === 'admin') {
+                window.location.replace('/admin');
+                return;
+            }
+            document.getElementById('accountName').textContent = currentUser.full_name;
+            loadHistory();
+        }
+
+        async function signOut() {
+            await fetch('/auth/logout', { method: 'POST', headers: authHeaders() });
+            sessionStorage.removeItem('access_token');
+            window.location.replace('/');
+        }
+
+        async function inspectDataset() {
+            const fileInput = document.getElementById('csvFileInput');
+            if (fileInput.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const res = await fetch('/redundancy/analyze', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: formData
+            });
+
+            if (!res.ok) {
+                alert('Access Denied or invalid file structure!');
+                return;
+            }
+
+            const data = await res.json();
+            const checkboxContainer = document.getElementById('columnCheckboxes');
+            const fuzzySelect = document.getElementById('fuzzyColumnSelect');
+
+            checkboxContainer.innerHTML = '';
+            fuzzySelect.innerHTML = '';
+
+            data.columns.forEach(col => {
+                checkboxContainer.innerHTML += `
+                    <label class="flex items-center space-x-2 bg-gray-900 px-3 py-1.5 rounded border border-gray-800 text-xs cursor-pointer hover:border-blue-500">
+                        <input type="checkbox" value="${escapeHTML(col)}" class="subset-checkbox rounded bg-gray-900 border-gray-700 text-blue-600 focus:ring-0">
+                        <span class="font-mono text-gray-300">${escapeHTML(col)}</span>
+                    </label>
+                `;
+                fuzzySelect.innerHTML += `<option value="${escapeHTML(col)}">${escapeHTML(col)}</option>`;
+            });
+
+            document.getElementById('columnSelectorContainer').classList.remove('hidden');
+            document.getElementById('processBtn').classList.remove('hidden');
+        }
+
+        function toggleFuzzyOptions() {
+            const enabled = document.getElementById('enableFuzzy').checked;
+            const container = document.getElementById('fuzzyOptionsContainer');
+            if (enabled) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        async function runOptimization() {
+            const fileInput = document.getElementById('csvFileInput');
+            const keepPolicy = document.getElementById('keepPolicy').value;
+            const ignoreCase = document.getElementById('ignoreCase').checked;
+
+            const enableFuzzy = document.getElementById('enableFuzzy').checked;
+            const fuzzyCol = document.getElementById('fuzzyColumnSelect').value;
+            const fuzzyThreshold = document.getElementById('fuzzyThreshold').value;
+
+            const selectedCols = Array.from(document.querySelectorAll('.subset-checkbox:checked'))
+                                      .map(cb => cb.value)
+                                      .join(',');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            if (selectedCols) formData.append('subset_cols', selectedCols);
+            formData.append('keep_policy', keepPolicy);
+            formData.append('ignore_case', ignoreCase);
+            formData.append('enable_fuzzy', enableFuzzy);
+            if (enableFuzzy) {
+                formData.append('fuzzy_col', fuzzyCol);
+                formData.append('fuzzy_threshold', fuzzyThreshold);
+            }
+
+            const res = await fetch('/redundancy/process', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: formData
+            });
+
+            if (!res.ok) {
+                alert('Processing failed!');
+                return;
+            }
+
+            const data = await res.json();
+            lastJobData = data;
+            cachedCSV = data.cleaned_csv_content;
+            cachedJSON = data.cleaned_json_content;
+            cachedRemoved = data.removed_csv_content;
+
+            // Metrics Update
+            document.getElementById('metricOriginal').innerText = data.metrics.original_rows;
+            document.getElementById('metricCleaned').innerText = data.metrics.cleaned_rows;
+            document.getElementById('metricRemoved').innerText = data.metrics.duplicates_removed;
+            document.getElementById('metricPercent').innerText = `${data.metrics.redundancy_percentage}%`;
+            document.getElementById('metricHealth').innerText = `${data.metrics.health_score}/100`;
+            document.getElementById('auditTimestamp').innerText = `Processed: ${data.timestamp}`;
+
+            // Table Render
+            document.getElementById('tableHeader').innerHTML = `<tr>${data.preview_columns.map(c => `<th class="p-2">${escapeHTML(c)}</th>`).join('')}</tr>`;
+            document.getElementById('tableBody').innerHTML = data.preview_rows.map(row =>
+                `<tr>${row.map(val => `<td class="p-2 font-mono">${escapeHTML(val)}</td>`).join('')}</tr>`
+            ).join('');
+
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            loadHistory();
+        }
+
+        async function downloadPDFReport() {
+            if (!lastJobData.metrics) {
+                alert("Please process a dataset first!");
+                return;
+            }
+            const formData = new FormData();
+            formData.append('filename', lastJobData.filename);
+            formData.append('original_rows', lastJobData.metrics.original_rows);
+            formData.append('cleaned_rows', lastJobData.metrics.cleaned_rows);
+            formData.append('duplicates_removed', lastJobData.metrics.duplicates_removed);
+            formData.append('redundancy_percentage', lastJobData.metrics.redundancy_percentage);
+            formData.append('health_score', lastJobData.metrics.health_score);
+
+            const res = await fetch('/redundancy/pdf-report', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: formData
+            });
+
+            if (!res.ok) {
+                alert("Failed to generate PDF certificate!");
+                return;
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Audit_Certificate_${lastJobData.filename}.pdf`;
+            a.click();
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch('/redundancy/history', {
+                    headers: authHeaders()
+                });
+                if (!res.ok) return;
+                const history = await res.json();
+
+                const tbody = document.getElementById('historyTableBody');
+                if (history.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No past audit jobs recorded yet.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = history.map(job => `
+                    <tr class="hover:bg-gray-800/50">
+                        <td class="p-2.5 font-mono text-gray-500">#${job.id}</td>
+                        <td class="p-2.5 font-semibold text-blue-300">${escapeHTML(job.filename)}</td>
+                        <td class="p-2.5 font-mono text-gray-400 text-[11px]">${escapeHTML(job.timestamp)}</td>
+                        <td class="p-2.5 font-mono">${job.original_rows}</td>
+                        <td class="p-2.5 font-mono text-emerald-400">${job.cleaned_rows}</td>
+                        <td class="p-2.5 font-mono text-amber-400">${job.duplicates_removed}</td>
+                        <td class="p-2.5 font-mono text-purple-400 font-semibold">${job.redundancy_percentage}%</td>
+                        <td class="p-2.5 font-mono text-rose-400 font-bold">${job.health_score == null ? 'N/A' : job.health_score + '/100'}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error("Failed to load history:", err);
+            }
+        }
+
+        function downloadFile(type) {
+            if (type === 'csv' && cachedCSV) {
+                const blob = new Blob([cachedCSV], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'cleaned_dataset.csv'; a.click();
+            } else if (type === 'json' && cachedJSON) {
+                const blob = new Blob([cachedJSON], { type: 'application/json' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'cleaned_dataset.json'; a.click();
+            } else if (type === 'removed' && cachedRemoved) {
+                const blob = new Blob([cachedRemoved], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'audit_removed_duplicates.csv'; a.click();
+            }
+        }
+    </script>
+</body>
+</html>

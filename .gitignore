@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+redundancy_history.db
+redundancy_history.db-shm
+redundancy_history.db-wal
+.pytest_cache/
+.vscode/
